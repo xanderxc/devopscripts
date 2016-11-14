@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars:
+    download_url: http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-linux-x64.rpm
+    download_folder: /opt
+    java_archive: "{{download_folder}}/jdk-8u112-linux-x64.rpm"
+
+  tasks:
+    - name: install emacs, vim, curl.
+      yum: name={{ item }} state=present update_cache=yes
+      with_items:
+      - emacs
+      - vim
+      - curl
+
+    - name: Download Java
+      command: "wget -q -O {{java_archive}} --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{download_url}} creates={{java_archive}}"
+
+    - name: yum install java rpm
+      yum: name={{java_archive}} state=present
+
+    - name: Clean up
+      file: state=absent path={{java_archive}}
